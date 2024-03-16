@@ -1,0 +1,86 @@
+version: '3.8'
+name: ${DOCKER_PROYECT}
+services:  
+  php:
+    build:
+      dockerfile: ${DOCKER_FILE}
+    container_name: ${PHP_CONTAINER_NAME}
+    working_dir: ${WORKING_DIR}
+    depends_on:
+      - mariadb
+    deploy:
+      resources:
+        limits:
+          cpus: ${PHP_LIMITS_CPUS}
+          memory: ${PHP_LIMITS_MEMORY}
+        reservations:
+          cpus: ${DEFOULT_RESERVATIONS_CPUS}
+          memory: ${PHP_RESERVATIONS_MEMORY}
+    expose:
+      - ${PHP_PORT}
+    ports:
+      - ${PHP_PORT}:8000
+    command: ${COMMAND}
+    volumes:
+      - ../src:${PHP_VOLUME}
+    networks:
+      - serv-test-wt
+      - mysql_network-mysql
+
+  mariadb:
+    image: ${MARIADB_IMAGE}
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: ${DEFOULT_LIMITS_CPUS}
+          memory: ${DEFOULT_LIMITS_MEMORY}
+        reservations:
+          cpus: ${DEFOULT_RESERVATIONS_CPUS}
+          memory: ${DEFOULT_RESERVATIONS_MEMORY}
+    expose:
+      - ${MYSQL_PORT}
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes: 
+      - ${MYSQL_DATA_VOLUME}
+      - ${MYSQL_LOGS_VOLUME}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - serv-test-wt
+      - mysql_network-mysql
+
+  phpmyadmin:
+    image: ${PHPMYADMIN_IMAGE}
+    container_name: ${PHPMYADMIN_CONTAINER_NAME}
+    deploy:
+      resources:
+        limits:
+          cpus: ${DEFOULT_LIMITS_CPUS}
+          memory: ${DEFOULT_LIMITS_MEMORY}
+        reservations:
+          cpus: ${DEFOULT_RESERVATIONS_CPUS}
+          memory: ${DEFOULT_RESERVATIONS_MEMORY}
+    tty: true
+    expose:
+      - ${PHPMYADMIN_PORT}
+    ports:
+      - ${PHPMYADMIN_PORT}:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mariadb
+      - UPLOAD_LIMIT=100000000
+    depends_on:
+      - mariadb
+    networks:
+      - serv-test-wt
+      - mysql_network-mysql
+
+networks:
+  serv-test-wt:
+    driver: bridge
+  mysql_network-mysql:
+    external: true
