@@ -45,7 +45,6 @@ services:
       - ${MYSQL_PORT}:3306
     volumes: 
       - ${MYSQL_DATA_VOLUME}
-      - ${MYSQL_LOGS_VOLUME}
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
